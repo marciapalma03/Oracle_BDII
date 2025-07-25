@@ -79,6 +79,14 @@ VALUES(201,'Michael','Hartstein','MHARTSTE','515.123.5555','1996-02-17','MK_MAN'
 INSERT INTO employees(employee_id,first_name,last_name,email,phone_number,hire_date,job_id,salary,commission_pct,manager_id,department_id)
 VALUES(202,'Pat','Fay','PFAY','603.123.6666','1997-08-17','MK_REP',6000,null,201,20);
 
+--Sentencia SELECT basica
+SELECT *
+FROM employees;
+
+SELECT first_name
+FROM employees;
+
+--Sentencia SELECT con condicion
 SELECT first_name, last_name, job_id
 FROM employees
 WHERE job_id = 'SA_REP';
