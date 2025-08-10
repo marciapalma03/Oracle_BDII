@@ -251,3 +251,94 @@ WHERE e.department_id =
     WHERE d.department_name = 'IT' AND d.department_id = e.department_id
 );
 
+INSERT INTO employees (employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, commission_pct, manager_id, department_id, bonus) 
+VALUES (207, 'Carlos', 'Guzmán', 'cguzman@example.com', '505-555-7890', '2025-08-08', 'IT_PROG', 4500.00, 0.05, 101, 60, 500);
+
+INSERT INTO employees
+VALUES (208, 'María', 'López', 'mlopez@example.com', '505-555-4567', '2025-08-08', 'HR_REP', 3200.00, NULL, 102, 50, 300);
+
+UPDATE employees
+SET first_name = 'Carlos', last_name = 'Pérez', salary = 4200.00
+WHERE employee_id = 208;
+
+DELETE FROM employees
+WHERE employee_id = 208;
+
+UPDATE employees
+SET salary = 5000, bonus = 750
+WHERE employee_id = 105;
+
+DELETE FROM employees
+WHERE employee_id = 105;
+
+CREATE TABLE high_salary_emps 
+(
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    salary NUMERIC(10,2)
+);
+
+INSERT INTO high_salary_emps (employee_id, first_name, last_name, salary)
+SELECT employee_id, first_name, last_name, salary
+FROM employees
+WHERE salary > 10000;
+
+CREATE TABLE dept50_emps 
+(
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50)
+);
+
+INSERT INTO dept50_emps (employee_id, first_name, last_name)
+SELECT employee_id, first_name, last_name
+FROM employees
+WHERE department_id = 50;
+
+CREATE TABLE table1 
+(
+    column1 DATE DEFAULT CURRENT_DATE,
+    column2 TEXT
+);
+
+INSERT INTO table1 (column1, column2)
+VALUES (DEFAULT, 'Ejemplo 1');
+
+INSERT INTO table1 (column2)
+VALUES ('Ejemplo 2');
+
+CREATE TABLE new_employees 
+(
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    salary NUMERIC(10,2)
+);
+
+INSERT INTO new_employees (employee_id, first_name, last_name, email, salary) VALUES
+(101, 'Ana', 'Lopez', 'ana.lopez@example.com', 5000),  
+(999, 'Luis', 'Pérez', 'luis.perez@example.com', 3000); 
+
+ALTER TABLE employees
+ALTER COLUMN hire_date SET DEFAULT CURRENT_DATE;
+
+ALTER TABLE employees
+ALTER COLUMN job_id SET DEFAULT 'TEMP_JOB';
+
+MERGE INTO employees AS dest
+USING new_employees AS src
+ON dest.employee_id = src.employee_id
+
+WHEN MATCHED THEN
+UPDATE SET 
+first_name = src.first_name,
+last_name = src.last_name,
+email = src.email,
+salary = src.salary
+
+WHEN NOT MATCHED THEN
+INSERT (employee_id, first_name, last_name, email, salary)
+VALUES (src.employee_id, src.first_name, src.last_name, src.email, src.salary);
+
