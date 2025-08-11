@@ -342,3 +342,161 @@ WHEN NOT MATCHED THEN
 INSERT (employee_id, first_name, last_name, email, salary)
 VALUES (src.employee_id, src.first_name, src.last_name, src.email, src.salary);
 
+CREATE TABLE products 
+(
+    product_id SERIAL PRIMARY KEY,
+    product_name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) DEFAULT 'General',
+    price NUMERIC(10,2) DEFAULT 0.00,
+    stock_quantity INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE high_salary_employees
+AS
+SELECT employee_id, first_name, last_name, salary
+FROM employees
+WHERE salary > 5000;
+
+ALTER TABLE employees
+ADD COLUMN middle_name VARCHAR(30) DEFAULT 'N/A';
+
+ALTER TABLE employees
+ALTER COLUMN first_name TYPE VARCHAR(30);
+
+ALTER TABLE employees
+DROP COLUMN bonus;
+
+BEGIN;
+DROP TABLE products;
+ROLLBACK;
+
+SELECT schemaname, tablename
+FROM pg_catalog.pg_tables
+WHERE tablename = 'products';
+
+CREATE TABLE categories 
+(
+    category_id SERIAL PRIMARY KEY,
+    category_name VARCHAR(50) NOT NULL
+);
+
+INSERT INTO categories (category_name)
+VALUES ('Smartphones');
+
+CREATE TABLE products2
+(
+    product_id SERIAL CONSTRAINT products_pk PRIMARY KEY,
+    product_name VARCHAR(100) CONSTRAINT products_name_nn NOT NULL,
+    sku VARCHAR(50) CONSTRAINT products_sku_uk UNIQUE,
+    price NUMERIC(10,2) CONSTRAINT products_price_ck CHECK (price > 0),
+    category_id INT CONSTRAINT products_category_fk REFERENCES categories(category_id)
+);
+
+INSERT INTO categories (category_name) VALUES
+('Electronics'),
+('Furniture');
+
+CREATE TABLE categories2 
+(
+    category_id SERIAL PRIMARY KEY,
+    category_name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE products3 
+(
+    product_id SERIAL,
+    product_name VARCHAR(100) NOT NULL,
+    manufacture_date DATE NOT NULL,
+    price NUMERIC(10,2) CHECK (price > 0),
+    category_id INT,
+    CONSTRAINT products2_pk PRIMARY KEY (product_id),
+    CONSTRAINT products2_name_uk UNIQUE (product_name),
+    CONSTRAINT products2_price_ck CHECK (price > 10),
+    CONSTRAINT products_category_fk FOREIGN KEY (category_id) REFERENCES categories2 (category_id)
+);
+
+INSERT INTO categories (category_name) VALUES
+('Electronics'),
+('Furniture'),
+('Clothing');
+
+CREATE OR REPLACE VIEW view_emp_names (employee_id, full_name) AS
+SELECT employee_id, first_name || ' ' || last_name
+FROM employees;
+
+CREATE OR REPLACE VIEW view_dept_50 AS
+SELECT employee_id, first_name, last_name, email, phone_number, hire_date, job_id, salary, commission_pct, manager_id, department_id
+FROM employees
+WHERE department_id = 50
+WITH CHECK OPTION;
+
+DROP VIEW view_emp_names;
+DROP VIEW view_dept_50;
+
+SELECT *
+FROM (
+SELECT 
+ROW_NUMBER() OVER (ORDER BY employee_id) AS rank,
+employee_id AS col1,
+first_name AS col2
+FROM employees
+) 
+sub
+WHERE rank <= 5;
+
+SELECT e.employee_id AS col1, d.department_name AS col2
+FROM employees e,
+(
+    SELECT department_id, department_name
+    FROM departments
+    WHERE location_id = 1700
+) 
+d
+WHERE e.department_id = d.department_id;
+
+CREATE SEQUENCE seq_example
+INCREMENT BY 1
+START WITH 1
+MAXVALUE 1000
+MINVALUE 1
+CYCLE
+CACHE 10;
+
+DROP SEQUENCE seq_example;
+
+CREATE INDEX idx_employees_name
+ON employees (first_name, last_name);
+
+DROP INDEX idx_employees_name;
+
+CREATE VIEW emp_syn AS
+SELECT * FROM employees;
+
+SELECT * FROM emp_syn;
+
+DROP VIEW emp_syn;
+
+CREATE USER my_user WITH PASSWORD 'my_password';
+
+GRANT SELECT, INSERT, UPDATE ON employees TO my_user;
+
+GRANT CREATE ON SCHEMA public TO my_user;
+
+ALTER USER my_user WITH PASSWORD 'new_password';
+
+CREATE ROLE managers;
+
+GRANT SELECT, UPDATE (salary) 
+ON employees
+TO managers
+WITH GRANT OPTION;
+
+REVOKE SELECT, UPDATE
+ON employees
+FROM managers;
+
+REVOKE ALL
+ON employees
+FROM managers;
